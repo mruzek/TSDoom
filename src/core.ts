@@ -1,18 +1,11 @@
-import {DoomObject} from "./object";
+import {Drawable, DoomObject, Wall} from "./object";
+import {CTX, RESX, RESY, ROTATIONX, ROTATIONY, SPEED, ROTATIONSPEED} from "./globals";
 
-const RESX = 640;
-const RESY = 480;
-let offsetX = 0;
-let offsetY = 0;
-let angle = 0;
+export let offsetX = 0;
+export let offsetY = 0;
+export let angle = 0;
 
-const rotationSpeed = 12;
-const speed = 20;
-
-const canvas = <HTMLCanvasElement> document.getElementById("screen");
-const ctx = canvas.getContext("2d");
-canvas.width = RESX;
-canvas.height = RESY;
+let objectPool: Drawable[];
 
 document.onkeydown = checkKey;
 function checkKey(e: any) {
@@ -42,43 +35,43 @@ function checkKey(e: any) {
     }
 }
 
-function toRadians (angle: number) {
+export function toRadians (angle: number) {
     return angle * (Math.PI / 180);
 }
 
 function up() {
-    offsetX = offsetX + (speed * Math.sin(toRadians(angle)));
-    offsetY = offsetY + (speed * Math.cos(toRadians(angle)));
+    offsetX = offsetX + (SPEED * Math.sin(toRadians(angle)));
+    offsetY = offsetY + (SPEED * Math.cos(toRadians(angle)));
 }
 
 function down() {
-    offsetX = offsetX - (speed * Math.sin(toRadians(angle)));
-    offsetY = offsetY - (speed * Math.cos(toRadians(angle)));
+    offsetX = offsetX - (SPEED * Math.sin(toRadians(angle)));
+    offsetY = offsetY - (SPEED * Math.cos(toRadians(angle)));
 }
 
 function strafeLeft() {
-    offsetX = offsetX + (speed * Math.cos(toRadians(angle)));
-    offsetY = offsetY - (speed * Math.sin(toRadians(angle)));
+    offsetX = offsetX + (SPEED * Math.cos(toRadians(angle)));
+    offsetY = offsetY - (SPEED * Math.sin(toRadians(angle)));
 }
 
 function strafeRight() {
-    offsetX = offsetX - (speed * Math.cos(toRadians(angle)));
-    offsetY = offsetY + (speed * Math.sin(toRadians(angle)));
+    offsetX = offsetX - (SPEED * Math.cos(toRadians(angle)));
+    offsetY = offsetY + (SPEED * Math.sin(toRadians(angle)));
 }
 
 function rotateLeft() {
-    if((angle + rotationSpeed) > 360) {
-        angle = 360 - angle + rotationSpeed
+    if((angle + ROTATIONSPEED) > 360) {
+        angle = 360 - angle + ROTATIONSPEED
     } else {
-        angle = angle + rotationSpeed
+        angle = angle + ROTATIONSPEED
     }
 }
 
 function rotateRight() {
-    if((angle - rotationSpeed) < 0) {
-        angle = (360 + angle - rotationSpeed)
+    if((angle - ROTATIONSPEED) < 0) {
+        angle = (360 + angle - ROTATIONSPEED)
     } else{
-        angle = angle - rotationSpeed
+        angle = angle - ROTATIONSPEED
     }
 }
 
@@ -91,10 +84,17 @@ function stateLog() {
 }
 
 function clear() {
-    ctx.fillStyle = "#000";
-    // ctx.fillRect(0, 0, RESX, RESY);
-    ctx.fillRect(-10, -10, 1000, 1000);
+    CTX.fillStyle = "#000";
+    CTX.fillRect(0, 0, RESX, RESY);
 }
+
+function drawFov() {
+
+}
+//-------------------------------------
+let Me = new DoomObject(10, "#0a0087");
+Me.x = ROTATIONX;
+Me.y = ROTATIONY;
 
 let You = new DoomObject(30, "#874600");
 You.x = 200;
@@ -104,25 +104,46 @@ let Fat = new DoomObject(60, "#ede300");
 Fat.x = -100;
 Fat.y = -100;
 
-let Me = new DoomObject(10, "#0a0087");
-Me.x = RESX / 2;
-Me.y = RESY / 2;
+let firstWall = new Wall(
+    RESX/2 - 100,
+    RESY,
+    RESX/2 - 100,
+    RESY - 400,
+    400,
+    "#FFF"
+);
+let secondWall = new Wall(
+    RESX/2 + 100,
+    RESY,
+    RESX/2 + 100,
+    RESY - 400,
+    400,
+    "#4dffa1"
+);
+let smallWallHeight = 200;
+let smallWallColor = "1bff00";
+let smallWall1 = new Wall(50, 50, 150, 50, smallWallHeight, smallWallColor);
+let smallWall2 = new Wall(150, 50, 150, 150, smallWallHeight, smallWallColor);
+let smallWall3 = new Wall(150, 150, 50, 150, smallWallHeight, smallWallColor);
+let smallWall4 = new Wall(50, 150, 50, 50, smallWallHeight, smallWallColor);
+
+objectPool = [
+    You, Fat, firstWall, secondWall, smallWall1, smallWall2, smallWall3, smallWall4
+];
 
 export function eachFrame() {
-    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    CTX.setTransform(1, 0, 0, 1, 0, 0);
+    // static assets
     clear();
-    // what should be static here
     Me.draw();
-    // ---
-    ctx.translate(RESX/2, RESY/2);
-    ctx.rotate(angle * Math.PI / 180);
-    ctx.translate(-RESX/2, -RESY/2);
-    ctx.transform(1,0,0,1,offsetX , offsetY);
-    // what should be dynamic here
-    You.draw();
-    Fat.draw();
 
-    // ---
+    CTX.translate(ROTATIONX, ROTATIONY);
+    CTX.rotate(angle * Math.PI / 180);
+    CTX.translate(-ROTATIONX, -ROTATIONY);
+    CTX.transform(1,0,0,1,offsetX , offsetY);
+    // dynamic assets
+    objectPool.map(drawable => drawable.draw())
+
 }
 
 setInterval(eachFrame, 20);
