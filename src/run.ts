@@ -1,3 +1,4 @@
-import {eachFrame} from "./core";
+import {eachFrame} from './core';
+import {FPS} from './globals';
 
-setInterval(eachFrame, 20);
+setInterval(eachFrame, 1000/FPS);

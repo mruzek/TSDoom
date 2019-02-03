@@ -1,11 +1,14 @@
-import {Drawable, DoomObject, Wall} from "./object";
-import {CTX, RESX, RESY, ROTATIONX, ROTATIONY, SPEED, ROTATIONSPEED} from "./globals";
+import {Drawable, Wall, Izo} from './object';
+import {CTX, CTX2, CTX3, RESX, RESY, ROTATIONX, ROTATIONY, SPEED, ROTATIONSPEED} from './globals';
+import {map0, Me} from './maps/map0';
+import {stateLog, toRadians} from "./utils";
+import {fovPlane} from "./maps/fovPlane";
 
+// app state
 export let offsetX = 0;
 export let offsetY = 0;
 export let angle = 0;
-
-let objectPool: Drawable[];
+//
 
 document.onkeydown = checkKey;
 function checkKey(e: any) {
@@ -33,10 +36,6 @@ function checkKey(e: any) {
     if (e.keyCode == '70') { // F
         stateLog();
     }
-}
-
-export function toRadians (angle: number) {
-    return angle * (Math.PI / 180);
 }
 
 function up() {
@@ -75,75 +74,55 @@ function rotateRight() {
     }
 }
 
-function stateLog() {
-    console.log(
-        "offsetX", offsetX,
-        "offsetY", offsetY,
-        "angle", angle
-    )
-}
-
-function clear() {
-    CTX.fillStyle = "#000";
-    CTX.fillRect(0, 0, RESX, RESY);
-}
-
-function drawFov() {
-
-}
-//-------------------------------------
-let Me = new DoomObject(10, "#0a0087");
-Me.x = ROTATIONX;
-Me.y = ROTATIONY;
-
-let You = new DoomObject(30, "#874600");
-You.x = 200;
-You.y = 100;
-
-let Fat = new DoomObject(60, "#ede300");
-Fat.x = -100;
-Fat.y = -100;
-
-let firstWall = new Wall(
-    RESX/2 - 100,
-    RESY,
-    RESX/2 - 100,
-    RESY - 400,
-    400,
-    "#FFF"
-);
-let secondWall = new Wall(
-    RESX/2 + 100,
-    RESY,
-    RESX/2 + 100,
-    RESY - 400,
-    400,
-    "#4dffa1"
-);
-let smallWallHeight = 200;
-let smallWallColor = "1bff00";
-let smallWall1 = new Wall(50, 50, 150, 50, smallWallHeight, smallWallColor);
-let smallWall2 = new Wall(150, 50, 150, 150, smallWallHeight, smallWallColor);
-let smallWall3 = new Wall(150, 150, 50, 150, smallWallHeight, smallWallColor);
-let smallWall4 = new Wall(50, 150, 50, 50, smallWallHeight, smallWallColor);
-
-objectPool = [
-    You, Fat, firstWall, secondWall, smallWall1, smallWall2, smallWall3, smallWall4
-];
-
 export function eachFrame() {
-    CTX.setTransform(1, 0, 0, 1, 0, 0);
-    // static assets
-    clear();
-    Me.draw();
+    clear(CTX, CTX2, CTX3);
+    drawPov(CTX, ...map0);
+    draw2D(CTX2, ...map0);
+    drawIzo(CTX3, ...map0);
 
-    CTX.translate(ROTATIONX, ROTATIONY);
-    CTX.rotate(angle * Math.PI / 180);
-    CTX.translate(-ROTATIONX, -ROTATIONY);
-    CTX.transform(1,0,0,1,offsetX , offsetY);
-    // dynamic assets
-    objectPool.map(drawable => drawable.draw())
+    drawStatics(CTX, Me);
+    drawStatics(CTX2, Me, ...fovPlane);
+    drawStatics(CTX3, Me);
 
 }
 
-setInterval(eachFrame, 20);
+function drawStatics(ctx: CanvasRenderingContext2D, ...drawables: Drawable[]) {
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    drawables.map(d => d.draw(ctx))
+}
+
+function draw2D(ctx: CanvasRenderingContext2D, ...drawables: Drawable[]) {
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.translate(ROTATIONX, ROTATIONY); // TODO: maybe handle canvas translation within draw function
+    ctx.rotate(angle * Math.PI / 180);
+    ctx.translate(-ROTATIONX, -ROTATIONY);
+    ctx.transform(1,0,0,1,offsetX , offsetY);
+    drawables.map(d => d.draw(ctx))
+}
+
+function drawIzo(ctx: CanvasRenderingContext2D, ...drawables: Wall[]) {
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.translate(ROTATIONX, ROTATIONY);
+    ctx.rotate(angle * Math.PI / 180);
+    ctx.translate(-ROTATIONX, -ROTATIONY);
+    ctx.transform(1,0,0,1,offsetX , offsetY);
+    drawables.map(d => new Izo(d).draw(ctx))
+}
+
+function drawPov(ctx: CanvasRenderingContext2D, ...drawables: Wall[]) {
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    // ctx.translate(ROTATIONX, ROTATIONY);
+    // ctx.rotate(angle * Math.PI / 180);
+    // ctx.translate(-ROTATIONX, -ROTATIONY);
+    // ctx.transform(1,0,0,1,offsetX , offsetY);
+    drawables.map(d => d.draw3d(ctx))
+}
+
+function clear(...ctxs: CanvasRenderingContext2D[]) {
+    ctxs.map(ctx => {
+        ctx.setTransform(1, 0, 0, 1, 0, 0);
+        ctx.fillStyle = '#000';
+        ctx.fillRect(0, 0, RESX, RESY);
+    })
+}
+
