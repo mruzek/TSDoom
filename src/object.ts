@@ -1,5 +1,5 @@
-import {RESX, RESY} from './globals';
-import {angle} from './core';
+import {RESX, RESY, ROTATIONX, ROTATIONY} from './globals';
+import {angle, offsetX, offsetY} from './core';
 import {toRadians} from "./utils"; //TODO: fix circular dependency
 
 export interface Drawable {
@@ -39,15 +39,12 @@ export class Wall implements Drawable{
 
     x1: number;
     y1: number;
-
     x2: number;
     y2: number;
-
     height:number = RESY;
-
     color: string;
 
-    public draw(ctx: CanvasRenderingContext2D): void {
+    public draw(ctx: CanvasRenderingContext2D) {
         ctx.strokeStyle = this.color;
         ctx.beginPath();
         ctx.moveTo(this.x1, this.y1);
@@ -55,25 +52,63 @@ export class Wall implements Drawable{
         ctx.stroke();
     }
 
+    public draw2D(ctx: CanvasRenderingContext2D): void {
+        ctx.strokeStyle = this.color;
+        ctx.beginPath();
+
+        let rotationCenterX = ROTATIONX;
+        let rotationCenterY = ROTATIONY;
+/*
+
+rotation
+x' = x cosα + y sinα
+y' = y cosα - x sinα
+*/
+    //rotation around 0
+        let x1Rotated: number = (this.x1 * Math.cos(toRadians(angle))) + (this.y1 * Math.sin(toRadians(angle)));
+        let y1Rotated: number = (this.y1 * Math.cos(toRadians(angle))) - (this.x1 * Math.sin(toRadians(angle)));
+        let x2Rotated: number = (this.x2 * Math.cos(toRadians(angle))) + (this.y2 * Math.sin(toRadians(angle)));
+        let y2Rotated: number = (this.y2 * Math.cos(toRadians(angle))) - (this.x2 * Math.sin(toRadians(angle)));
+
+
+        ctx.moveTo(x1Rotated, y1Rotated);
+        ctx.lineTo(x2Rotated, y2Rotated);
+
+        // ctx.moveTo(this.x1, this.y1);
+        // ctx.lineTo(this.x2, this.y2);
+        ctx.stroke();
+    }
+
     // TODO: either use separate method or decorator to adjus draw functionality
     draw3d(ctx: CanvasRenderingContext2D): void {
 
-        // ctx.beginPath();
-        //ctx.moveTo(this.x1, this.y1);
-        //ctx.lineTo(this.x2, this.y2);
-
-        //fps view
         ctx.strokeStyle = this.color;
 
+        // let x1_3D: number = (RESX / 2) - ((RESY/2) / ((RESY - this.y1) / (RESX/2 - this.x1)));
+        // let y1_3D: number = RESY / 2;
+        // let x2_3D: number = (RESX / 2) - ((RESY/2) / ((RESY - this.y2) / (RESX/2 - this.x2)));
+        // let y2_3D: number = RESY / 2;
 
-        let x1_3D: number = (RESX / 2) - ((RESY/2) / ((RESY - this.y1) / (RESX/2 - this.x1)));
+        let x1_3D: number = (RESX / 2) - ((RESY/2) / ((RESY - this.y1 - offsetY) / (RESX/2 - this.x1 - offsetX)));
         let y1_3D: number = RESY / 2;
-        let x2_3D: number = (RESX / 2) - ((RESY/2) / ((RESY - this.y2) / (RESX/2 - this.x2)));
+        let x2_3D: number = (RESX / 2) - ((RESY/2) / ((RESY - this.y2 - offsetY) / (RESX/2 - this.x2 - offsetX)));
         let y2_3D: number = RESY / 2;
 
         ctx.beginPath();
         ctx.lineTo(x1_3D, y1_3D);
         ctx.lineTo(x2_3D, y2_3D);
+        // coolme
+        ctx.lineTo(x2_3D, y2_3D - this.height / 2);
+        ctx.lineTo(x1_3D, y1_3D - this.height / 2);
+        ctx.lineTo(x1_3D, + y1_3D + this.height / 2);
+        ctx.lineTo(x2_3D, + y2_3D + this.height / 2);
+        ctx.lineTo(x2_3D, y2_3D);
+
+        ctx.lineTo(x2_3D, y2_3D - this.height / 2);
+        ctx.lineTo(x1_3D, + y1_3D + this.height / 2);
+        ctx.lineTo(x2_3D, + y2_3D + this.height / 2);
+        ctx.lineTo(x1_3D, + y1_3D - this.height / 2);
+
         ctx.stroke();
     }
 }

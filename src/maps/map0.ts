@@ -46,7 +46,7 @@ let triangC = new Wall(520, 350, 500, 400, triangHeight, triangColor);
 let tallWall = new Wall(550, 10, 500, 40, 600, '#f34332');
 
 export let map0: Wall[] = [
-    firstWall, secondWall,
+    // firstWall, secondWall,
     smallWall1, smallWall2, smallWall3, smallWall4,
     triangA, triangB, triangC,
     tallWall

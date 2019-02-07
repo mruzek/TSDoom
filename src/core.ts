@@ -91,13 +91,15 @@ function drawStatics(ctx: CanvasRenderingContext2D, ...drawables: Drawable[]) {
     drawables.map(d => d.draw(ctx))
 }
 
-function draw2D(ctx: CanvasRenderingContext2D, ...drawables: Drawable[]) {
+function draw2D(ctx: CanvasRenderingContext2D, ...drawables: Wall[]) {
     ctx.setTransform(1, 0, 0, 1, 0, 0);
-    ctx.translate(ROTATIONX, ROTATIONY); // TODO: maybe handle canvas translation within draw function
-    ctx.rotate(angle * Math.PI / 180);
-    ctx.translate(-ROTATIONX, -ROTATIONY);
+
+    // ctx.translate(ROTATIONX, ROTATIONY); // TODO: handle canvas translation within draw function
+    // ctx.rotate(angle * Math.PI / 180);
+    // ctx.translate(-ROTATIONX, -ROTATIONY);
     ctx.transform(1,0,0,1,offsetX , offsetY);
-    drawables.map(d => d.draw(ctx))
+
+    drawables.map(d => d.draw2D(ctx))
 }
 
 function drawIzo(ctx: CanvasRenderingContext2D, ...drawables: Wall[]) {
@@ -111,10 +113,11 @@ function drawIzo(ctx: CanvasRenderingContext2D, ...drawables: Wall[]) {
 
 function drawPov(ctx: CanvasRenderingContext2D, ...drawables: Wall[]) {
     ctx.setTransform(1, 0, 0, 1, 0, 0);
-    // ctx.translate(ROTATIONX, ROTATIONY);
-    // ctx.rotate(angle * Math.PI / 180);
-    // ctx.translate(-ROTATIONX, -ROTATIONY);
-    // ctx.transform(1,0,0,1,offsetX , offsetY);
+
+    //offset x transformation
+
+    //offset y transformation
+
     drawables.map(d => d.draw3d(ctx))
 }
 

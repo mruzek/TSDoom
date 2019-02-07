@@ -8,7 +8,7 @@ let fov1: Wall = new Wall(
     RESX / 2,
     RESY,
     5,
-    '#666'
+    '#333333'
 );
 
 let fov2: Wall = new Wall(
@@ -17,7 +17,7 @@ let fov2: Wall = new Wall(
     RESX,
     RESY - ((RESX / 2) / Math.tan(toRadians(FOV/2))),
     1,
-    '#666'
+    '#333333'
 );
 
 let horizon: Wall = new Wall(
@@ -26,7 +26,7 @@ let horizon: Wall = new Wall(
     RESX,
     RESY / 2,
     1,
-    '#ccc'
+    '#666666'
 );
 
 export let fovPlane = [
