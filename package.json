@@ -3,6 +3,7 @@
     "start": "webpack"
   },
   "dependencies": {
+    "@types/node": "^11.9.5",
     "ts-loader": "^5.3.3",
     "typescript": "^3.3.1",
     "webpack": "^4.29.3"

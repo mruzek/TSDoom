@@ -22,8 +22,18 @@ export class DoomObject implements Drawable{
 
     public draw(ctx: CanvasRenderingContext2D): void {
         ctx.fillStyle = this.color;
-        ctx.fillRect(this.x - this.size/2, this.y - this.size/2, this.size, this.size);
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.size, 0, 2 * Math.PI);
+        ctx.fill();
     }
+}
+
+export class Creature extends DoomObject {
+    constructor(size: number, color: string, speed: number) {
+        super(size, color);
+        this.speed = speed;
+    }
+    speed: number;
 }
 
 export class Wall implements Drawable{
