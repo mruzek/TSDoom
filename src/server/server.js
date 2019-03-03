@@ -1,33 +1,49 @@
 const http = require('http');
 const fs = require('fs');
-// const URL = require('url');
+
 const server = http.createServer();
-const host = "localhost";
+const host = 'localhost';
 const port = 1337;
 
-// const indexPage = new URL('file:///../../../dist/index.html');
-const indexPage = './dist/index.html';
-file = fs.readFileSync(indexPage);
+const distPath = 'D:\\Dev\\TSDoom\\dist\\';
 
-server.on('request', (request, response) => {
-    let body = [];
-    request.on('data', (chunk) => {
-        body.push(chunk);
+server.on('request', (req, res) => {
+    let response;
+
+    req.on('data', (chunk) => {
+
     });
-    request.on('end', () => {
-        body = Buffer.concat(body).toString();
 
-        // response.write('ok ok ok ok ok ok');
-        // response.write(body);
-        response.write(file);
+    req.on('end', () => {
+        if(req.url == '/'){
+            response = fs.readFileSync(distPath + 'index.html');
+        } else {
+            response = fs.readFileSync(distPath + (req.url).substr(1));
+        }
 
-        response.end();
-        response.on('error', (err) => {
-            console.error(err);
+        //test
+        if(req.url == '/A') {
+            response = fs.readFileSync(distPath + (req.url).substr(1));
+        }
+
+        res.write(response);
+        res.end( () => {
+                console.log('qwe',req.url);
         });
 
+        // read file from file system
+        // fs.readFile(pathname, (err, data) => {
+        //     res.write(data);
+        //     res.end();
+        //     res.on('error', (err) => {
+        //         console.error(err);
+        //     });
+        //
+        // });
+
     });
-    request.on('error', (err) => {
+
+    req.on('error', (err) => {
         console.error(err);
     });
 });
